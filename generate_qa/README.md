@@ -12,5 +12,9 @@ To run this project, clone this repo locally:
 
 ```
 $ cd ../your_directory
-$ git clone https://github.com/davidrkersey/llm/generate_qa/
+$ git clone https://github.com/davidrkersey/llm.git
 ```
+
+Upload docs (PDF, docx, CSV) to the 'docs' folder. 
+
+Run the generate_qa.py file. 
