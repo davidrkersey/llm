@@ -1,0 +1,49 @@
+,content,question,answer
+0,"rspective is a little different from in the last attack. Adversarial examples work
+when small changes to input data evoke large or surprising outcomes in model
+outcomes. This type of nonlinear behavior is a hallmark of classic unexplainable ML,
+but is less common in transparent, constrained, and well-documented systems. There
+must also be something to be gained from gaming such a system. ML-based payment
+systems , online content filters , and automated grading  have all been subject to adverâ€
+sarial example attacks. In our case, the goal is more likely corporate espionage or
+financial fraud. Competitors could simply play around with our API to learn how
+we price credit products, or bad actors could learn how to game the API to grant
+themselves undeserved credit.
+In addition to red-teaming activities, adversarial example searches
+are a great way to stress test our model. Searching across a wide
+array of input values and predicted outcomes gives a more fulsome
+view of model behavior com","What are the potential risks of using adversarial example attacks on ML-based payment systems, online content filters, and automated grading?","The potential risks of using adversarial example attacks on ML-based payment systems, online content filters, and automated grading include corporate espionage, financial fraud, and undeserved credit. Adversarial examples can be used to manipulate inputs and evoke large or surprising outcomes in model outcomes, which can lead to the exploitation of the system."
+1,"hose to focus on two measures of model accuracy, F1 score and AUC, and two
+measures of model bias, AIRs and false-positive rate (FPR) disparity.
+Table 10-8. Comparison of test data between bias-remediation techniques
+Measurement Original
+modelPreprocessing
+(reweighting)In-processing
+(regularized,
+lambda  = 0.2)Postprocessing
+(reject option,
+window = 0.1)Model
+selection
+AUC 0.798021 0.774183 0.764005 0.794894 0.789016
+F1 0.558874 0.543758 0.515971 0.533964 0.543147
+Asian AIR 1.012274 1.010014 1.001185 1.107676 1.007365
+Black AIR 0.735836 0.877673 0.851499 0.901386 0.811854
+Hispanic AIR 0.736394 0.861252 0.851045 0.882538 0.805121
+Asian FPR disparity 0.872567 0.929948 0.986472 0.575248 0.942973
+Black FPR disparity 1.783528 0.956640 1.141044 0.852034 1.355846
+Hispanic FPR disparity 1.696062 0.899065 1.000040 0.786195 1.253355
+366 | Chapter 10: Testing and Remediating Bias with XGBoost3And donâ€™t forget the bias remediation decision tree (slide 40) .The results are exciting: many remediat",What were the results of the comparison of test data between bias-remediation techniques?,"The results of the comparison of test data between bias-remediation techniques showed that preprocessing (reweighting) had an AUC of 0.774183, an F1 score of 0.543758, Asian AIR of 1.010014, Black AIR of 0.877673, Hispanic AIR of 0.861252, Asian FPR disparity of 0.929948, Black FPR disparity of 0.956640, and Hispanic FPR disparity of 0.899065. In-processing (regularized, lambda = 0.2) had an AUC of 0.764005, an F1 score of 0.515971, Asian AIR of 1.001185, Black AIR of 0.851499, Hispanic AIR of 0.851045, Asian FPR disparity of 0.986472, Black FPR disparity of 1.141044, and Hispanic FPR disparity of 1.000040. Postprocessing (reject option, window = 0.1) had an AUC of 0.794894, an F1 score of 0.533964, Asian AIR of 1.107676, Black AIR of 0.901386, Hispanic AIR of 0.88"
+2,"ho are 
+familiar with the model. Hence, auditing the development and governance practices can 
+be rewarding in the long run. 
+Auditing data considerations, model fairness and performance and project management 
+and governance of ML systems can provide a comprehensive view of MLOps. Using error 
+alerts and actions, we can perform timely investigations into errors to get the system up 
+and running and in some cases, we can even do automated debugging to automate error 
+resolution and MLOps. Finally, by undertaking model quality assurance, control and 
+auditing, we can ensure efficient governance of our MLOps. Next, we will look at how to 
+enable model retraining so that we have continual learning capabilities for our ML system.  
+Enabling model retraining 
+So far, weâ€™ve talked about what model drift is and how to recognise it. So, the question is, 
+what should we do about it? If a modelâ€™s predictive performance has deteriorated due to 
+changes in the environment, the solution is to r",What strategies can be employed to ensure efficient governance of MLOps?,"Strategies that can be employed to ensure efficient governance of MLOps include auditing data considerations, model fairness and performance, and project management and governance of ML systems. Additionally, implementing error alerts and actions, and undertaking model quality assurance, control and auditing can further ensure efficient governance of MLOps."

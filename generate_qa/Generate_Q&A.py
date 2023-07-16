@@ -14,22 +14,31 @@ to keep in mind:
 """
 
 import os
+import shutil
+from dotenv import load_dotenv, find_dotenv
+
 from PyPDF2 import PdfReader
 import re
 import docxpy
 import random
 import pandas as pd
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter, CharacterTextSplitter
 from langchain.llms import OpenAI
 from langchain import PromptTemplate, HuggingFaceHub, LLMChain
+
+from helpers import *
 
 """
 Specify API Keys
 """
+OPENAI_API = os.getenv('OPENAI_API_KEY')
 
 """
 Specify preprocessing
+
+convert_txt: converts PDF and DOCX files to TXT files
+chunk_txt: chunks the TXT files into smaller snippets
+
 """
 convert_txt = False
 chunk_txt = True
@@ -50,14 +59,16 @@ clean_dir = os.path.join(main_dir, 'docs_clean')
 out_dir = os.path.join(main_dir, 'output')
 
 # Reset directory
-#if os.path.exists(clean_dir):
-#    os.rmdir(clean_dir)
-#    os.makedirs(clean_dir)
-#else:
-#   os.makedirs(clean_dir)
+if convert_txt:
+    if os.path.exists(clean_dir):
+        shutil.rmtree(clean_dir)
+        os.makedirs(clean_dir)
+    else:
+       os.makedirs(clean_dir)
 
+# Reset outputs
 if os.path.exists(out_dir):
-    os.rmdir(out_dir)
+    shutil.rmtree(out_dir)
     os.makedirs(out_dir)
 else:
    os.makedirs(out_dir)
@@ -67,25 +78,11 @@ Text Processing
 
 The files in PDF, docx and CSV in the 'docs' directory will be converted to .txt format and stored in the 'docs_clean' folder
 
-Add toggles for 'cleaning the text'
 """
 
-def convert_csv_to_txt(csv_file, txt_file):
-    """Converts a CSV file to a TXT file.
-
-    Args:
-        csv_file: The path to the CSV file.
-        txt_file: The path to the TXT file.
-
-    Returns:
-        None.
-    """
-
-    with open(csv_file, "r") as csv_file:
-        with open(txt_file, "w") as txt_file:
-            for line in csv_file:
-                txt_file.write(line)
-
+"""
+Convert to TXT Preprocessing
+"""
 if convert_txt:
     
     text_ls = []
@@ -118,18 +115,11 @@ if convert_txt:
                 #text = text.replace("  ", " ")
                 text_ls.append((filename, text))
         elif re.search('.csv', filename) is not None:
-            if re.search('GFEBS_FAQ', filename) is not None:
-                with open(filename, "r", encoding="cp1252") as csv_file:
-                    print(filename)
-                    text= csv_file.read()
-                    #print(text)
-                    text_ls.append((filename, text))
-            else:
-                with open(filename, "r", encoding="utf-8") as csv_file:
-                    print(filename)
-                    text= csv_file.read()
-                    #print(text)
-                    text_ls.append((filename, text))
+            with open(filename, "r", encoding="utf-8") as csv_file:
+                print(filename)
+                text= csv_file.read()
+                #print(text)
+                text_ls.append((filename, text))
         else: 
             pass
 
@@ -155,66 +145,27 @@ if convert_txt:
             floc.write(i[1])
 
 
-def split_into_chunks(text, chunk_size):
-  """
-  Splits text into chunks
-  """
-  chunks = []
-  for i in range(0, len(text), chunk_size):
-    chunks.append(text[i:i+chunk_size])
-  return chunks
-
-
 if chunk_txt:
     ## Specify chunk size. Larger chunks means more context. Smaller is less.
     chunk_size = 1000
     chunk_ls = []
 
     ## Loop to iterate over all documents in directory and break them into n-size chunks
-    for file in os.listdir(doc_dir):
-        filename = os.path.join(doc_dir, file)
+    for file in os.listdir(clean_dir):
+        filename = os.path.join(clean_dir, file)
         text = open(filename, 'r', errors='ignore').read()
         chunks = split_into_chunks(text, chunk_size)
-    for i in chunks:
-        chunk_ls.append(i)
+        for i in chunks:
+            chunk_ls.append(i)
 
 
 """
-Specify number of questions by taking random sample of chunks
+Specify number of questions by size of random sample of chunks
 """
 
 sample_size = 3
 
 ls_rand = random.sample(chunk_ls, sample_size)
-
-"""
-Function to generate question and answers
-"""
-
-def call_model(prompt_template, input_vars(list), chunk_ls, gen_q = True):
-    
-    prompt = PromptTemplate(
-        input_variables=input_vars,
-        template=prompt_template,
-        )
-    
-    model = OpenAI(openai_api_key = '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')
-    chain = LLMChain(prompt=prompt, llm=model)
-
-    if gen_q:
-        df = pd.DataFrame(chunk_ls, columns=['content'])
-        df['question'] = ''
-
-        for i in range(len(df)):
-            df.loc[i, 'question'] = chain.run(df.loc[i, "content"])
-    
-    else:
-        df['answer'] = ''
-
-        for i in range(len(df)):
-            df.loc[i, 'answer'] = chain.run({'content':df.loc[i, "content"], 'question':df.loc[i, "question"]})
-
-    return df
 
 """
 Generate questions from chunk of text
@@ -232,33 +183,9 @@ Answer:
 )
 """
 
-## Prompt node
-prompt = PromptTemplate(
-    input_variables=["content"],
-    template=qa_gen_template,
-)
+df_start = pd.DataFrame()
 
-## Model specification
-model = OpenAI(openai_api_key = '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')
-chain = LLMChain(prompt=prompt, llm=model)
-
-# Define HF Model
-#HUGGING_FACE_API_KEY = "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"
-
-#Model
-#model = HuggingFaceHub(repo_id="gpt2",
-#                       model_kwargs={"temperature": 0, "max_length":100},
-#                       huggingfacehub_api_token=HUGGING_FACE_API_KEY)
-#chain = LLMChain(prompt=prompt, llm=model)
-
-#Generate dataframe with content, question
-df = pd.DataFrame(ls_rand, columns=['content'])
-df['question'] = ''
-
-#Run model
-for i in range(len(df)):
-  df.loc[i, 'question'] = chain.run(df.loc[i, "content"])
-
+df = call_model(df_start, qa_gen_template, ['content'], ls_rand, OPENAI_API, gen_q = True)
 
 """
 Generate answer from chunk and question
@@ -280,25 +207,10 @@ Answer:
 )
 """
 
-#Prompt node
-prompt = PromptTemplate(
-    input_variables=["content","question"],
-    template=qa_answer_template,
-)
+df_end = call_model(df, qa_answer_template, ['content','question'], ls_rand, OPENAI_API, gen_q = False)
 
-## Model specification
-model = OpenAI(openai_api_key = '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')
-chain = LLMChain(prompt=prompt, llm=model)
+# """
+# Save Model Outputs
+# """
 
-#Dataframe
-df['answer'] = ''
-
-#Run model
-for i in range(len(df)):
-  df.loc[i, 'answer'] = chain.run({'content':df.loc[i, "content"], 'question':df.loc[i, "question"]})
-
-"""
-Save Model Outputs
-"""
-
-df.to_csv(out_dir)
+df_end.to_csv(os.path.join(out_dir, 'qa_output.csv'))
